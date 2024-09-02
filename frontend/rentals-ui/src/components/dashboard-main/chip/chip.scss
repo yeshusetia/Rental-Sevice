@@ -1,0 +1,19 @@
+.chip {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    background-color: #ffffff; /* Default background */
+    color: #000000;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .chip.active {
+    background-color: #d9534f; /* Active background color */
+    color: #ffffff;
+  }
+  
+  .chip:hover {
+    background-color: #f0f0f0;
+  }
