@@ -10,7 +10,7 @@ import dollarSign from '../../app/assets/dollar-sign.svg';
 import moreHorizontal from '../../app/assets/more-horizontal.svg';
 import { click } from '@testing-library/user-event/dist/click';
 import CardComponent from '../common-components/card-components/CardComponent';
-
+import '../componets.styles.scss';
 function DashboarMain() {
 
     const [activeChip, setActiveChip] = useState('Places'); // Default active chip
@@ -31,6 +31,7 @@ function DashboarMain() {
         {label:'Vans & Buses',value:'VANS_BUSES'},
         {label:'Cars and Suvs',value:'CARS_SUVS'} 
     ];
+    const cards=[1,2,3,4,5]
 
     const handleCategoryClick = (value: string) => {
         setActiveSpaceCategory(value);
@@ -41,15 +42,15 @@ function DashboarMain() {
       <div className="content-container d-flex flex-dir-col" style={{ width: '100%', height: '100%' }}>
         <DashboardHeader />
         <div className="bg-image d-flex just-center center-align">
-           <div className="bg-img-main">
+           <div className="bg-img-main d-flex flex-dir-col gap-36">
             <div>
                 <span className='fs-64'>Discover Your <span>Perfect Rental</span></span>
             </div>
-            <div>
+            <div className='d-flex just-center'>
                 <span className='fs-32'>Rent Cars, Houses, and Items in Just a Few Clicks</span>
             </div>
 
-            <div className="chips-main">
+            <div className="chips-main d-flex just-center">
             {chips.map((chip) => (
                 <Chip
                 key={chip}
@@ -66,13 +67,13 @@ function DashboarMain() {
            </div>
         </div>
 
-        <div className="page-two" style={{ width: '100%',height: '1000px' }}>
+        <div className="page-two" style={{ height: '1000px' }}>
 
-            <div className="width-100 d-flex just-center pt-16">
+            <div className="width-100 d-flex just-center ">
                 <span className='h2-b'>Browse From Top Categories</span>
             </div>
 
-           <div className="categories d-flex gap-24 just-center pt-16">
+           <div className="categories d-flex gap-24 just-center pt-32">
            {categories.map((category) => (
                 <Category
                 name={category.name}
@@ -82,11 +83,11 @@ function DashboarMain() {
             ))}
            </div>
 
-           <div className="width-100 d-flex just-center pt-16">
+           <div className="width-100 d-flex just-center pt-32">
                 <span className='h2-b'>Featured Listing</span>
             </div>
 
-            <div className="space-categories d-flex gap-24 just-center pt-12">
+            <div className="space-categories d-flex gap-24 just-center pt-32">
                 {spaceCategories.map((spaceCategory)=>(
                     <div onClick={()=>handleCategoryClick(spaceCategory.value)} className={`space-category ${activeSpaceCategory == spaceCategory.value  ? 'active-space-category' : ''}`} >
                         <span>{spaceCategory.label}</span>
@@ -96,11 +97,12 @@ function DashboarMain() {
 
             </div>
 
-            <div className="cards-section d-flex just-space">
+            <div className="cards-section d-flex just-center">
 
-                <CardComponent
-                />
-
+                    {cards.map((card)=>(
+                    <CardComponent/>
+                    ))}
+        
             </div>
 
         </div>
