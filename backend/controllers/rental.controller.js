@@ -1,5 +1,7 @@
 // rental.controller.js
 const rentalService = require('../service/rental.service');
+const userService = require('../service/user.service');
+const User = require('../models/user.model'); 
 
 class RentalController {
   async createRental(req, res) {
@@ -55,6 +57,34 @@ class RentalController {
       res.status(500).json({ error: error.message });
     }
   }
+
+   // Register a new user
+  async register(req, res) {
+    try {
+      const { email, password, name, userType } = req.body;
+      const user = await userService.register({ email, password, name, userType });
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  // Login user
+  async login(req, res) {
+    try {
+      const { email, password } = req.body;
+      const { user, token } = await userService.login(email, password);
+      res.status(200).json({ user, token });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
+
+
+
+
+
+
 
 module.exports = new RentalController();
