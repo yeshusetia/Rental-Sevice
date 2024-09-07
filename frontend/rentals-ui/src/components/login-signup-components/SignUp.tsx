@@ -3,9 +3,11 @@ import AuthLayout from './AuthLayout';
 import './login-sign-up.scss';
 import openEye from '../../app/assets/open-eye.svg';
 import closeEye from '../../app/assets/close-eye.svg';
+import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
   // State for form inputs
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +17,7 @@ function SignUp() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false); // State for resend OTP loading
 
   // State to toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +54,7 @@ function SignUp() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, userType,source:'NEW_USER' }),
+        body: JSON.stringify({ email, userType, source: 'NEW_USER' }),
       });
 
       if (response.ok) {
@@ -90,6 +93,9 @@ function SignUp() {
       if (response.ok) {
         const data = await response.json();
         setSuccess('User registered successfully!');
+        setTimeout(() => {
+          navigate('/login'); // Navigate to the login page
+        }, 1000);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to register');
@@ -98,6 +104,35 @@ function SignUp() {
       setError('Error connecting to the server');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to resend OTP
+  const handleResendOtp = async () => {
+    setError('');
+    setSuccess('');
+
+    // Resend OTP
+    try {
+      setResendLoading(true);
+      const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, userType, source: 'NEW_USER' }),
+      });
+
+      if (response.ok) {
+        setSuccess('OTP resent successfully!');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to resend OTP');
+      }
+    } catch (err) {
+      setError('Error connecting to the server');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -177,17 +212,27 @@ function SignUp() {
 
         {/* OTP input field (only show after OTP is sent) */}
         {otpSent && (
-          <div className="form-group">
-            <label>OTP</label>
-            <input
-              className="inputs"
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
-          </div>
+          <>
+            <div className="form-group">
+              <label>OTP</label>
+              <input
+                className="inputs"
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+            </div>
+            <button 
+              type="button" 
+              className="resend-btn" 
+              onClick={handleResendOtp} 
+              disabled={resendLoading}
+            >
+              {resendLoading ? 'Resending OTP...' : 'Resend OTP'}
+            </button>
+          </>
         )}
 
         {/* Submit button */}
@@ -197,7 +242,7 @@ function SignUp() {
       </form>
 
       <p className="signin-link">
-        Have an account? <a href="/login">Sign In</a>
+        Have an account? <a href="/login">Login In</a>
       </p>
     </AuthLayout>
   );

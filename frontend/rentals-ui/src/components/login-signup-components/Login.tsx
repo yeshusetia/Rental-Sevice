@@ -70,15 +70,15 @@ function Login() {
         <div className="form-group">
           <label>Password</label>
           <div className="password-group">
-            <div className='d-flex gap-12' >
+            <div className='d-flex gap-12'style={{marginBottom:'12px'}} >
             <input
-              className="inputs"
+              className="inputs2"
               type={showPassword ? "text" : "password"} // Toggle password visibility
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{width:'266px'}}
+
             />
                <span 
             className="d-flex center-align" 

@@ -43,12 +43,12 @@
   }
   
   .password-group {
-    display: flex;
-    justify-content: space-between;
+
     align-items: center;
   }
   
   .forgot-password {
+    margin-top: 12px;
     color: #007bff;
     text-decoration: none;
     font-size: 14px;
@@ -251,7 +251,7 @@
     padding: 10px;
     border-radius: 10px;
     border: 1px solid #D9D9D9;
-    width: 60%;
+    width: 80%;
   }
  
   
@@ -292,4 +292,13 @@
     content: '...';
     display: inline-block;
     animation: dot-blink 1.5s infinite steps(3);
+  }
+  .resend-btn
+  {
+   margin-bottom: 16px;
+   border: none;
+   cursor: pointer;
+   background-color: #fff;
+   color: #0937B2;
+   font-weight: 700;
   }

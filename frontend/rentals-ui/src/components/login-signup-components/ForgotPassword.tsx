@@ -162,7 +162,7 @@ function ForgotPassword() {
       )}
 
       <p className="signin-link">
-        Remember your password? <a href="/login">Sign In</a>
+        Remember your password? <a href="/login">Log In</a>
       </p>
     </AuthLayout>
   );
