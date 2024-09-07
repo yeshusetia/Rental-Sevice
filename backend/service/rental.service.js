@@ -22,6 +22,11 @@ class RentalService {
   async deleteRental(id) {
     return await Rental.findByIdAndDelete(id);
   }
+  
+
+
 }
+
+
 
 module.exports = new RentalService();

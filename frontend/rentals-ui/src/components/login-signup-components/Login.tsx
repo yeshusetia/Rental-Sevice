@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import AuthLayout from './AuthLayout';
 import './login-sign-up.scss';
-
+import { useNavigate } from 'react-router-dom';
+import openEye from '../../app/assets/open-eye.svg';
+import closeEye from '../../app/assets/close-eye.svg';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const handleLogin = async (e: any) => {
     e.preventDefault();
 
@@ -30,7 +33,7 @@ function Login() {
         // Save token and user data to local storage or context
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-
+        navigate('/dashboard');
         // Redirect or do something after successful login
         console.log('Login successful', data);
         // window.location.href = '/dashboard'; // Example redirect to a dashboard
@@ -49,7 +52,7 @@ function Login() {
       <h1>Welcome back!</h1>
       <p>Enter your Credentials to access your account</p>
 
-      {error && <div className="error-message">{error}</div>} {/* Show error message if exists */}
+      {error && <div className="error-message pb-16 red"><span className='h7-b'>{error}</span></div>}
 
       <form onSubmit={handleLogin}>
         <div className="form-group">
@@ -67,14 +70,26 @@ function Login() {
         <div className="form-group">
           <label>Password</label>
           <div className="password-group">
+            <div className='d-flex gap-12' >
             <input
-              className="inputs2"
-              type="password"
+              className="inputs"
+              type={showPassword ? "text" : "password"} // Toggle password visibility
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              style={{width:'266px'}}
             />
+               <span 
+            className="d-flex center-align" 
+            onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+          >
+            <img 
+              src={showPassword ? closeEye : openEye} 
+              alt={showPassword ? 'Hide password' : 'Show password'} 
+            />
+          </span>
+            </div>
             <a href="/forgot-password" className="forgot-password">forgot password</a>
           </div>
         </div>
@@ -84,10 +99,10 @@ function Login() {
         </button>
       </form>
 
-      <div className="social-login">
+     {false &&  <div className="social-login">
         <p>Or</p>
         <button className="google-btn">Sign in with Google</button>
-      </div>
+      </div>}
 
       <p className="signup-link">Don't have an account? <a href="/register">Sign Up</a></p>
     </AuthLayout>

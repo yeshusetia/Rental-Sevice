@@ -3,14 +3,18 @@ import AuthLayout from './AuthLayout';
 import './login-sign-up.scss';
 import openEye from '../../app/assets/open-eye.svg';
 import closeEye from '../../app/assets/close-eye.svg';
+
 function SignUp() {
   // State for form inputs
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('USER'); // Default to 'USER'
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false); // State for OTP
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // State to toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
@@ -19,8 +23,8 @@ function SignUp() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  // Function to handle form submission
-  const handleSubmit = async (e:any) => {
+  // Function to handle form submission (Send OTP)
+  const handleSendOtp = async (e:any) => {
     e.preventDefault();
 
     // Reset previous error/success messages
@@ -39,14 +43,48 @@ function SignUp() {
       return;
     }
 
-    // Call the registration API
+    // Send OTP to the email
     try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, userType,source:'NEW_USER' }),
+      });
+
+      if (response.ok) {
+        setSuccess('OTP sent to your email.');
+        setOtpSent(true); // OTP has been sent, now show OTP input field
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to send OTP');
+      }
+    } catch (err) {
+      setError('Error connecting to the server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle OTP verification and registration
+  const handleVerifyOtp = async (e:any) => {
+    e.preventDefault();
+
+    // Reset previous error/success messages
+    setError('');
+    setSuccess('');
+
+    // Validate OTP and register the user
+    try {
+      setLoading(true);
       const response = await fetch('http://localhost:5000/api/rentals/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, name, userType }),
+        body: JSON.stringify({ email, password, name, userType, otp }),
       });
 
       if (response.ok) {
@@ -58,6 +96,8 @@ function SignUp() {
       }
     } catch (err) {
       setError('Error connecting to the server');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,10 +106,11 @@ function SignUp() {
       <h1>Get Started Now</h1>
       
       {/* Show error or success message */}
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
+      {error && <div className="error-message pb-16 red"><span className='h7-b'>{error}</span></div>}
+      {success && <div className="success-message pb-16 green"><span className='h7-b'>{success}</span></div>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
+        {/* Name input */}
         <div className="form-group">
           <label>Name</label>
           <input
@@ -82,6 +123,7 @@ function SignUp() {
           />
         </div>
 
+        {/* Email input */}
         <div className="form-group">
           <label>Email address</label>
           <input
@@ -94,9 +136,10 @@ function SignUp() {
           />
         </div>
 
+        {/* Password input */}
         <div className="form-group">
           <label>Password</label>
-          <div className="password-input-container">
+          <div className="d-flex gap-12 center-align">
             <input
               className='inputs'
               type={showPassword ? "text" : "password"} // Toggle password visibility
@@ -106,7 +149,7 @@ function SignUp() {
               required
             />
               <span 
-            className="eye-icon" 
+            className="pointer-cursor" 
             onClick={() => setShowPassword(!showPassword)} // Toggle visibility
           >
             <img 
@@ -117,20 +160,41 @@ function SignUp() {
           </div>
         </div>
 
-        <div className="form-group d-flex center-align gap-16 ">
-          <input type="checkbox" id="terms" required />
-          <label htmlFor="terms" style={{ marginBottom: '0' }}>
-            I agree to the <a href="/terms">terms & policy</a>
-          </label>
+        {/* User type dropdown */}
+        <div className="form-group">
+          <label>User Type</label>
+          <select 
+          style={{width:'75%'}}
+            className="inputs" 
+            value={userType} 
+            onChange={(e) => setUserType(e.target.value)}
+            required
+          >
+            <option value="USER">User</option>
+            <option value="BROKER">Broker</option>
+          </select>
         </div>
 
-        <button type="submit" className="signup-btn">Signup</button>
-      </form>
+        {/* OTP input field (only show after OTP is sent) */}
+        {otpSent && (
+          <div className="form-group">
+            <label>OTP</label>
+            <input
+              className="inputs"
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              required
+            />
+          </div>
+        )}
 
-      <div className="social-signup">
-        <p className='d-flex just-center'>Or</p>
-        <button className="google-btn">Sign in with Google</button>
-      </div>
+        {/* Submit button */}
+        <button type="submit" className="signup-btn" disabled={loading}>
+          {loading ? (otpSent ? 'Verifying OTP...' : 'Sending OTP...') : (otpSent ? 'Verify OTP' : 'Sign Up')}
+        </button>
+      </form>
 
       <p className="signin-link">
         Have an account? <a href="/login">Sign In</a>
