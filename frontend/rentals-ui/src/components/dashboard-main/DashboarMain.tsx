@@ -11,8 +11,12 @@ import moreHorizontal from '../../app/assets/more-horizontal.svg';
 import { click } from '@testing-library/user-event/dist/click';
 import CardComponent from '../common-components/card-components/CardComponent';
 import '../componets.styles.scss';
+import { useRentals } from '../../context/RentalContext';
+import InsightComponent from '../common-components/insight-component/InsightComponent';
+import CitiesComponent from '../common-components/cities-component/CitiesComponent';
 function DashboarMain() {
-
+    const { rentals, setRentals } = useRentals();
+    console.log('rentals in main component',rentals)
     const [activeChip, setActiveChip] = useState('Places'); // Default active chip
     const [activeSpaceCategory, setActiveSpaceCategory] = useState('-1'); 
     const chips = ['Places', 'Rides', 'Things'];
@@ -36,6 +40,8 @@ function DashboarMain() {
     const handleCategoryClick = (value: string) => {
         setActiveSpaceCategory(value);
       };
+
+   
 
   return (
     <div>
@@ -98,14 +104,24 @@ function DashboarMain() {
             </div>
 
             <div className="cards-section d-flex just-center">
+                        {rentals.map((rental:any) => (
+                            <CardComponent
+                                rental={rental}  // Passing the entire rental object
+                            />
+                        ))}
+                    </div>
 
-                    {cards.map((card)=>(
-                    <CardComponent/>
-                    ))}
-        
+            <div className="insights">
+            <InsightComponent/>
+            </div>
+
+            <div className="cities">
+            <CitiesComponent/>
             </div>
 
         </div>
+
+     
       </div>
     </div>
   );

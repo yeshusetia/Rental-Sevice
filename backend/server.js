@@ -6,7 +6,8 @@ const setupSwagger = require('./swagger'); // Import Swagger setup
 const rentalRoutes = require('./routes/rental.routes'); // Import rental routes
 
 const app = express();
-
+app.use(express.json({ limit: '10mb' })); 
+app.use(express.urlencoded({ limit: '10mb', extended: true })); // Increase URL-encoded size limit
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());

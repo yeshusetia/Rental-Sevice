@@ -23,8 +23,6 @@ class RentalService {
     return await Rental.findByIdAndDelete(id);
   }
   
-
-
 }
 
 

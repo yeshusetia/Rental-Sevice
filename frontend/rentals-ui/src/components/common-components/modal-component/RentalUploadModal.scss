@@ -1,0 +1,107 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto; /* Ensure the overlay scrolls if content is too large */
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh; /* Limit modal height */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Add scrolling to modal content if necessary */
+    position: relative;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .modal-body {
+    flex: 1;
+    overflow-y: auto; /* Scrollable content */
+  }
+  
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .post-btn {
+    background-color: #3399cc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .post-btn:hover {
+    background-color: #287a9b;
+  }
+  
+  select {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #D9D9D9;
+    width: 73%;
+  }
+  
+  .file-upload-label {
+    display: inline-block;
+    padding: 10px;
+    color: #0937B2;
+    border-radius: 5px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .file-upload-input {
+    display: none;
+  }
+  
+  .file-name {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .file-upload-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .image-preview {
+    max-width: 100px;
+    margin-top: 10px;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 10px;
+  }
+  

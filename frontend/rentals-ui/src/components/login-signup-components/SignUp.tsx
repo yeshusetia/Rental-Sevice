@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthLayout from './AuthLayout';
 import './login-sign-up.scss';
 import openEye from '../../app/assets/open-eye.svg';
@@ -18,29 +18,34 @@ function SignUp() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false); // State for resend OTP loading
-
-  // State to toggle password visibility
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   // Regex patterns for validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  // Function to handle form submission (Send OTP)
-  const handleSendOtp = async (e:any) => {
+  // Load Razorpay script dynamically
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
+  // Function to handle OTP sending
+  const handleSendOtp = async (e: any) => {
     e.preventDefault();
 
     // Reset previous error/success messages
     setError('');
     setSuccess('');
 
-    // Validate email
+    // Validate email and password
     if (!emailRegex.test(email)) {
       setError('Invalid email address');
       return;
     }
 
-    // Validate password
     if (!passwordRegex.test(password)) {
       setError('Password must be at least 8 characters long and include a mix of uppercase, lowercase, number, and special character.');
       return;
@@ -71,8 +76,8 @@ function SignUp() {
     }
   };
 
-  // Function to handle OTP verification and registration
-  const handleVerifyOtp = async (e:any) => {
+  // Function to handle OTP verification and user registration
+  const handleVerifyOtp = async (e: any) => {
     e.preventDefault();
 
     // Reset previous error/success messages
@@ -92,10 +97,14 @@ function SignUp() {
 
       if (response.ok) {
         const data = await response.json();
-        setSuccess('User registered successfully!');
-        setTimeout(() => {
-          navigate('/login'); // Navigate to the login page
-        }, 1000);
+        if (userType === 'BROKER') {
+          handleRazorpayPayment(); // Trigger Razorpay payment if user is BROKER
+        } else {
+          setSuccess('User registered successfully!');
+          setTimeout(() => {
+            navigate('/login'); // Navigate to login page after successful registration
+          }, 1000);
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to register');
@@ -107,7 +116,37 @@ function SignUp() {
     }
   };
 
-  // Function to resend OTP
+  // Function to handle Razorpay payment
+  const handleRazorpayPayment = () => {
+    const options = {
+      key: 'rzp_live_Z00fZaH51I2BAi', // Enter your Razorpay API Key
+      amount: '20000', // Amount is in currency subunits (50000 paise = ₹500)
+      currency: 'INR',
+      name: 'Broker Registration Fee',
+      description: 'Complete your registration by paying the fee',
+      // image: 'https://example.com/your_logo', // Replace with your logo
+      handler: function (response:any) {
+        alert('Payment successful. Payment ID: ' + response.razorpay_payment_id);
+        setSuccess('Payment successful!');
+        setTimeout(() => {
+          navigate('/login'); // After payment, navigate to login
+        }, 1000);
+      },
+      prefill: {
+        name,
+        email,
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+
+    const rzp1 = new (window as any).Razorpay(options);
+    rzp1.open(); // Open the Razorpay payment modal
+  };
+
+
+  // Function to handle OTP resending
   const handleResendOtp = async () => {
     setError('');
     setSuccess('');
@@ -139,17 +178,17 @@ function SignUp() {
   return (
     <AuthLayout>
       <h1>Get Started Now</h1>
-      
+
       {/* Show error or success message */}
-      {error && <div className="error-message pb-16 red"><span className='h7-b'>{error}</span></div>}
-      {success && <div className="success-message pb-16 green"><span className='h7-b'>{success}</span></div>}
+      {error && <div className="error-message pb-16 red"><span className="h7-b">{error}</span></div>}
+      {success && <div className="success-message pb-16 green"><span className="h7-b">{success}</span></div>}
 
       <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}>
         {/* Name input */}
         <div className="form-group">
           <label>Name</label>
           <input
-            className='inputs'
+            className="inputs"
             type="text"
             placeholder="Enter your name"
             value={name}
@@ -162,7 +201,7 @@ function SignUp() {
         <div className="form-group">
           <label>Email address</label>
           <input
-            className='inputs'
+            className="inputs"
             type="email"
             placeholder="Enter your email"
             value={email}
@@ -176,32 +215,32 @@ function SignUp() {
           <label>Password</label>
           <div className="d-flex gap-12 center-align">
             <input
-              className='inputs'
-              type={showPassword ? "text" : "password"} // Toggle password visibility
+              className="inputs"
+              type={showPassword ? 'text' : 'password'} // Toggle password visibility
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-              <span 
-            className="pointer-cursor" 
-            onClick={() => setShowPassword(!showPassword)} // Toggle visibility
-          >
-            <img 
-              src={showPassword ? closeEye : openEye} 
-              alt={showPassword ? 'Hide password' : 'Show password'} 
-            />
-          </span>
+            <span
+              className="pointer-cursor"
+              onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+            >
+              <img
+                src={showPassword ? closeEye : openEye}
+                alt={showPassword ? 'Hide password' : 'Show password'}
+              />
+            </span>
           </div>
         </div>
 
         {/* User type dropdown */}
         <div className="form-group">
           <label>User Type</label>
-          <select 
-          style={{width:'75%'}}
-            className="inputs" 
-            value={userType} 
+          <select
+            style={{ width: '75%' }}
+            className="inputs"
+            value={userType}
             onChange={(e) => setUserType(e.target.value)}
             required
           >
@@ -224,10 +263,10 @@ function SignUp() {
                 required
               />
             </div>
-            <button 
-              type="button" 
-              className="resend-btn" 
-              onClick={handleResendOtp} 
+            <button
+              type="button"
+              className="resend-btn"
+              onClick={handleResendOtp}
               disabled={resendLoading}
             >
               {resendLoading ? 'Resending OTP...' : 'Resend OTP'}

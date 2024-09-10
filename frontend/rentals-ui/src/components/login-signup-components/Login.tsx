@@ -34,9 +34,6 @@ function Login() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/dashboard');
-        // Redirect or do something after successful login
-        console.log('Login successful', data);
-        // window.location.href = '/dashboard'; // Example redirect to a dashboard
       } else {
         setError(data.error || 'Login failed. Please check your credentials.');
       }

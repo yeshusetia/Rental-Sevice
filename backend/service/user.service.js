@@ -3,38 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model'); // Assuming you have a User model
 
 class UserService {
-  
-  async register(userData) {
-    const { email, password, name, userType, otp } = userData;
-  
-    // Verify OTP
-    const isOtpValid = await otpService.verifyOtp(email, otp);
-    if (!isOtpValid) {
-      throw new Error('Invalid or expired OTP');
-    }
-  
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      throw new Error('User already exists');
-    }
-  
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-  
-    // Create a new user
-    const user = new User({
-      email,
-      password: hashedPassword,
-      name,
-      userType,
-    });
-  
-    // Save the user in the database
-    await user.save();
-  
-    return user;
-  }
+
 
   async findUserByEmail(email) {
     // Find a user by their email
@@ -46,8 +15,8 @@ class UserService {
   }
 
   // Register new user
-  async registerUser(email, password, name, userType) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async registerUser(email, hashedPassword, name, userType) {
+ 
 
     // Create a new user
     const user = new User({
@@ -73,20 +42,24 @@ class UserService {
     // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new Error('User not found');
     }
-
+  
     // Check if the password is correct
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password); 
+    console.log('User from DB:', user);
+    console.log('Plain text password:', password);
+    console.log('user from db',user.password);
     if (!isPasswordValid) {
+      console.log(isPasswordValid); // Should return true or false
       throw new Error('Invalid credentials');
     }
-
+  
     // Generate a JWT token
     const token = jwt.sign({ userId: user._id, userType: user.userType }, 'your_jwt_secret', {
       expiresIn: '1h',
     });
-
+  
     return { user, token };
   }
 }

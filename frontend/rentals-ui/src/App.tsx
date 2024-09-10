@@ -6,6 +6,7 @@ import SignUp from './components/login-signup-components/SignUp';
 import Login from './components/login-signup-components/Login';
 import ForgotPassword from './components/login-signup-components/ForgotPassword';
 import PrivateRoute from './components/private-route-component/private-route-component'; // Importing PrivateRoute
+import { RentalProvider } from './context/RentalContext';
 
 function App() {
   return (
@@ -21,7 +22,9 @@ function App() {
           path="/dashboard/*"
           element={
             <PrivateRoute>
+               <RentalProvider>
               <Dashboard />
+              </RentalProvider>
             </PrivateRoute>
           }
         />
