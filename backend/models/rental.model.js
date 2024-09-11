@@ -38,9 +38,24 @@ const rentalSchema = new mongoose.Schema({
       return this.itemStatus === 'SALE'; // Selling price is required if itemStatus is 'SALE'
     }
   },
+
+  // Categories based on itemType
+  category: {
+    type: String,
+    enum: function () {
+      if (this.itemType === 'PROPERTY') {
+        return ['RESIDENTIAL', 'SPORT_VENUE', 'COMMERCIAL_SPACES'];
+      } else if (this.itemType === 'VEHICLE') {
+        return ['FOUR_WHEELER', 'TWO_WHEELER', 'BICYCLE'];
+      } else if (this.itemType === 'THING') {
+        return ['FURNITURE', 'ELECTRONICS', 'LAPTOPS', 'MOBILES'];
+      }
+      return null;
+    },
+    required: true // Category is required for all itemTypes
+  },
+
   // Fields common to both SALE and RENT
-
-
   ownerName: {
     type: String,
     required: true // Required for both RENT and SALE

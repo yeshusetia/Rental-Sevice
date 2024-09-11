@@ -6,7 +6,6 @@ import closeEye from '../../app/assets/close-eye.svg';
 import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
-  // State for form inputs
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,6 +18,7 @@ function SignUp() {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false); // State for resend OTP loading
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [paymentSuccessful, setPaymentSuccessful] = useState(false); // Track if payment is successful
 
   // Regex patterns for validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,15 +32,18 @@ function SignUp() {
     document.body.appendChild(script);
   }, []);
 
+  // Determine cost based on userType
+  const getCost = () => {
+    return userType === 'BROKER' ? 200 : 100; // Cost for BROKER = 200, USER = 100
+  };
+
   // Function to handle OTP sending
   const handleSendOtp = async (e: any) => {
     e.preventDefault();
 
-    // Reset previous error/success messages
     setError('');
     setSuccess('');
 
-    // Validate email and password
     if (!emailRegex.test(email)) {
       setError('Invalid email address');
       return;
@@ -51,7 +54,6 @@ function SignUp() {
       return;
     }
 
-    // Send OTP to the email
     try {
       setLoading(true);
       const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
@@ -80,34 +82,26 @@ function SignUp() {
   const handleVerifyOtp = async (e: any) => {
     e.preventDefault();
 
-    // Reset previous error/success messages
     setError('');
     setSuccess('');
 
-    // Validate OTP and register the user
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/rentals/register', {
+      // Verify OTP and then open the Razorpay modal
+      const response = await fetch('http://localhost:5000/api/rentals/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, name, userType, otp }),
+        body: JSON.stringify({ email, otp }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (userType === 'BROKER') {
-          handleRazorpayPayment(); // Trigger Razorpay payment if user is BROKER
-        } else {
-          setSuccess('User registered successfully!');
-          setTimeout(() => {
-            navigate('/login'); // Navigate to login page after successful registration
-          }, 1000);
-        }
+        // Open Razorpay modal for payment
+        handleRazorpayPayment(); // Trigger Razorpay payment
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to register');
+        setError(errorData.error || 'Failed to verify OTP');
       }
     } catch (err) {
       setError('Error connecting to the server');
@@ -118,19 +112,21 @@ function SignUp() {
 
   // Function to handle Razorpay payment
   const handleRazorpayPayment = () => {
+    const cost = getCost(); // Get the cost based on user type
+
     const options = {
-      key: 'rzp_live_Z00fZaH51I2BAi', // Enter your Razorpay API Key
-      amount: '20000', // Amount is in currency subunits (50000 paise = ₹500)
+      key: 'rzp_test_zt5DDs1PmkkyDy', // Enter your Razorpay API Key
+      amount: cost * 100, // Amount is in paise (100 INR = 10000 paise)
       currency: 'INR',
-      name: 'Broker Registration Fee',
-      description: 'Complete your registration by paying the fee',
-      // image: 'https://example.com/your_logo', // Replace with your logo
-      handler: function (response:any) {
-        alert('Payment successful. Payment ID: ' + response.razorpay_payment_id);
+      name: 'Registration Fee',
+      description: userType === 'BROKER' ? 'Broker Registration Fee' : 'User Registration Fee',
+      handler: function (response: any) {
         setSuccess('Payment successful!');
+        setPaymentSuccessful(true); // Set payment successful state
+
         setTimeout(() => {
-          navigate('/login'); // After payment, navigate to login
-        }, 1000);
+          completeRegistration(); // Complete registration after payment success
+        }, 2000); // Wait for 2 seconds before completing registration
       },
       prefill: {
         name,
@@ -139,19 +135,51 @@ function SignUp() {
       theme: {
         color: '#3399cc',
       },
+      modal: {
+        escape: false, // Disable closing the modal via the escape key
+      },
     };
 
     const rzp1 = new (window as any).Razorpay(options);
+    rzp1.on('payment.failed', function (response: any) {
+      setError('Payment failed. Please try again.');
+    });
+
     rzp1.open(); // Open the Razorpay payment modal
   };
 
+  // Complete the registration process after payment
+  const completeRegistration = async () => {
+    if (!paymentSuccessful) return;
+
+    try {
+      const response = await fetch('http://localhost:5000/api/rentals/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name, userType }),
+      });
+
+      if (response.ok) {
+        setSuccess('User registered successfully!');
+        setTimeout(() => {
+          navigate('/login'); // Navigate to login page after successful registration
+        }, 1000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to register');
+      }
+    } catch (err) {
+      setError('Error connecting to the server');
+    }
+  };
 
   // Function to handle OTP resending
   const handleResendOtp = async () => {
     setError('');
     setSuccess('');
 
-    // Resend OTP
     try {
       setResendLoading(true);
       const response = await fetch('http://localhost:5000/api/rentals/request-otp', {

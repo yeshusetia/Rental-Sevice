@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './RentalUploadModal.scss';
 import { ToastContainer, toast } from 'react-toastify';
 import close from '../../../app/assets/close.svg';
+import { useUser } from '../../../context/UserContext';
+import { useRentals } from '../../../context/RentalContext';
 
 interface RentalUploadModalProps {
   isOpen: boolean;
@@ -17,12 +19,36 @@ const locations = [
   { label: 'Chandigarh', value: 'CHANDIGARH' }
 ];
 
+// Define categories for each item type
+const categories:any = {
+  PROPERTY: [
+    { label: 'Residential', value: 'RESIDENTIAL' },
+    { label: 'Sport Venue', value: 'SPORT_VENUE' },
+    { label: 'Commercial Spaces', value: 'COMMERCIAL_SPACES' }
+  ],
+  VEHICLE: [
+    { label: 'Four Wheeler', value: 'FOUR_WHEELER' },
+    { label: 'Two Wheeler', value: 'TWO_WHEELER' },
+    { label: 'Bicycle', value: 'BICYCLE' }
+  ],
+  THING: [
+    { label: 'Furniture', value: 'FURNITURE' },
+    { label: 'Electronics', value: 'ELECTRONICS' },
+    { label: 'Laptops', value: 'LAPTOPS' },
+    { label: 'Mobiles', value: 'MOBILES' }
+  ]
+};
+
 function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
+  const { user } = useUser();
+  const { setRentalUploadedSuccessfully } = useRentals();
+
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [price, setPrice] = useState('');
   const [itemStatus, setItemStatus] = useState('RENT');
   const [itemType, setItemType] = useState('PROPERTY');
+  const [category, setCategory] = useState(''); // New state for category
   const [ownerName, setOwnerName] = useState('');
   const [ownerMobileNumber, setOwnerMobileNumber] = useState('');
   const [rentDuration, setRentDuration] = useState('MONTH');
@@ -40,6 +66,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
       setPrice('');
       setItemStatus('RENT');
       setItemType('PROPERTY');
+      setCategory(''); // Reset category
       setOwnerName('');
       setOwnerMobileNumber('');
       setRentDuration('MONTH');
@@ -48,7 +75,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
       setFileName('');
       setError(null);
     }
-  }, [isOpen]); // Trigger when `isOpen` changes
+  }, [isOpen]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,9 +104,10 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
       location,
       itemStatus,
       itemType,
+      category, // Include category in data
       ownerName,
       ownerMobileNumber,
-      image,
+      image
     };
 
     if (itemStatus === 'RENT') {
@@ -92,15 +120,20 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
     }
 
     try {
+      const rentalDataWithEditor = {
+        ...rentalData,
+        editorId: user._id
+      };
       const response = await fetch('http://localhost:5000/api/rentals', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(rentalData),
+        body: JSON.stringify(rentalDataWithEditor)
       });
 
       if (response.ok) {
+        setRentalUploadedSuccessfully(true);
         toast.success('Rental posted successfully!');
         onClose();
       } else {
@@ -112,19 +145,24 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
     }
   };
 
+  // Get category options based on itemType
+  const categoryOptions = categories[itemType] || [];
+
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Post Rental Property</h2>
+          <h2>Post Item</h2>
           <img onClick={onClose} className="close-btn" src={close} alt="Close" />
         </div>
         <div className="modal-body">
           <form onSubmit={handleSubmit}>
             <div className="form-group file-upload-wrapper">
-              <label className="file-upload-label" htmlFor="imageUpload">Upload Image</label>
+              <label className="file-upload-label" htmlFor="imageUpload">
+                Upload Image
+              </label>
               <input
                 type="file"
                 id="imageUpload"
@@ -137,11 +175,11 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
             </div>
 
             <div className="form-group">
-              <label>Property Title</label>
+              <label>Title</label>
               <input
                 type="text"
                 className="inputs"
-                placeholder="Enter property title"
+                placeholder="Enter Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -149,7 +187,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
             </div>
 
             <div className="form-group">
-              <label>Property Location</label>
+              <label>Location</label>
               <select
                 className="inputs"
                 value={location}
@@ -157,8 +195,10 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
                 required
               >
                 <option value="">Select Location</option>
-                {locations.map(loc => (
-                  <option key={loc.value} value={loc.value}>{loc.label}</option>
+                {locations.map((loc) => (
+                  <option key={loc.value} value={loc.value}>
+                    {loc.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -187,6 +227,25 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
                 <option value="THING">Thing</option>
               </select>
             </div>
+
+            {/* Category field based on itemType */}
+            {categoryOptions.length > 0 && (
+              <div className="form-group">
+                <label>Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categoryOptions.map((cat:any) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {itemStatus === 'RENT' && (
               <>
@@ -257,7 +316,9 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
               />
             </div>
 
-            <button type="submit" className="post-btn">Post Listing</button>
+            <button type="submit" className="post-btn">
+              Post Listing
+            </button>
           </form>
         </div>
       </div>
