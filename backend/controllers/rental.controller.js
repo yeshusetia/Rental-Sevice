@@ -62,30 +62,22 @@ class RentalController {
   }
 
 
-  async  register(req, res) {
+  async register(req, res) {
     try {
-      const { email, password, name, userType, otp } = req.body;
-  
-      // Verify OTP
-      if (!otpStore[email] || otpStore[email] !== otp) {
-        return res.status(400).json({ error: 'Invalid or expired OTP' });
-      }
-  
-      // Remove OTP after verification to prevent reuse
-      delete otpStore[email];
-  
+      const { email, password, name, userType } = req.body;
+
       // Check if user already exists
       const existingUser = await userService.findUserByEmail(email);
       if (existingUser) {
         return res.status(400).json({ error: 'User already exists' });
       }
-  
+
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
       // Register the new user
       const user = await userService.registerUser(email, hashedPassword, name, userType);
-  
+
       if (user) {
         res.status(201).json(user);
       } else {
@@ -95,7 +87,27 @@ class RentalController {
       res.status(500).json({ error: error.message });
     }
   }
-  
+
+
+  //Verify OTP
+  async verifyOtp(req, res) {
+    const { email, otp } = req.body;
+
+    try {
+      // Check if the OTP matches the one stored in memory
+      if (!otpStore[email] || otpStore[email] !== otp) {
+        return res.status(400).json({ error: 'Invalid or expired OTP' });
+      }
+
+      // If the OTP is valid, clear it from memory
+      delete otpStore[email];
+
+      res.status(200).json({ message: 'OTP verified successfully' });
+    } catch (error) {
+      console.error('Error verifying OTP: ', error);
+      res.status(500).json({ error: 'Error verifying OTP' });
+    }
+  }
 
 
   // Login user

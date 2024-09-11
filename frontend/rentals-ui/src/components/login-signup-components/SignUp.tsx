@@ -34,7 +34,7 @@ function SignUp() {
 
   // Determine cost based on userType
   const getCost = () => {
-    return userType === 'BROKER' ? 200 : 100; // Cost for BROKER = 200, USER = 100
+    return userType === 'BROKER' ? 50000 : 10000; // ₹500 for BROKER, ₹100 for USER (amount in paise)
   };
 
   // Function to handle OTP sending
@@ -50,7 +50,9 @@ function SignUp() {
     }
 
     if (!passwordRegex.test(password)) {
-      setError('Password must be at least 8 characters long and include a mix of uppercase, lowercase, number, and special character.');
+      setError(
+        'Password must be at least 8 characters long and include a mix of uppercase, lowercase, number, and special character.'
+      );
       return;
     }
 
@@ -78,7 +80,7 @@ function SignUp() {
     }
   };
 
-  // Function to handle OTP verification and user registration
+  // Function to handle OTP verification and payment
   const handleVerifyOtp = async (e: any) => {
     e.preventDefault();
 
@@ -87,7 +89,7 @@ function SignUp() {
 
     try {
       setLoading(true);
-      // Verify OTP and then open the Razorpay modal
+      // Verify OTP and then open the Razorpay modal for payment
       const response = await fetch('http://localhost:5000/api/rentals/verify-otp', {
         method: 'POST',
         headers: {
@@ -97,8 +99,8 @@ function SignUp() {
       });
 
       if (response.ok) {
-        // Open Razorpay modal for payment
-        handleRazorpayPayment(); // Trigger Razorpay payment
+        // After OTP verification, trigger the Razorpay payment modal
+        handleRazorpayPayment();
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to verify OTP');
@@ -110,23 +112,22 @@ function SignUp() {
     }
   };
 
-  // Function to handle Razorpay payment
+  // Razorpay payment handler
   const handleRazorpayPayment = () => {
-    const cost = getCost(); // Get the cost based on user type
+    const cost = getCost(); // Get the cost based on user type (paise)
 
     const options = {
       key: 'rzp_test_zt5DDs1PmkkyDy', // Enter your Razorpay API Key
-      amount: cost * 100, // Amount is in paise (100 INR = 10000 paise)
+      amount: cost, // Amount in paise (₹100 = 10000 paise)
       currency: 'INR',
       name: 'Registration Fee',
       description: userType === 'BROKER' ? 'Broker Registration Fee' : 'User Registration Fee',
       handler: function (response: any) {
         setSuccess('Payment successful!');
-        setPaymentSuccessful(true); // Set payment successful state
-
-        setTimeout(() => {
-          completeRegistration(); // Complete registration after payment success
-        }, 2000); // Wait for 2 seconds before completing registration
+        setPaymentSuccessful(true); // Mark payment as successful
+        // Complete registration after successful payment
+        completeRegistration();
+    
       },
       prefill: {
         name,
@@ -135,9 +136,6 @@ function SignUp() {
       theme: {
         color: '#3399cc',
       },
-      modal: {
-        escape: false, // Disable closing the modal via the escape key
-      },
     };
 
     const rzp1 = new (window as any).Razorpay(options);
@@ -145,12 +143,12 @@ function SignUp() {
       setError('Payment failed. Please try again.');
     });
 
-    rzp1.open(); // Open the Razorpay payment modal
+    rzp1.open(); // Open Razorpay modal
   };
 
-  // Complete the registration process after payment
+  // Complete registration only after successful payment
   const completeRegistration = async () => {
-    if (!paymentSuccessful) return;
+    if (!paymentSuccessful) return; // Ensure payment is successful
 
     try {
       const response = await fetch('http://localhost:5000/api/rentals/register', {
@@ -158,7 +156,7 @@ function SignUp() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, name, userType }),
+        body: JSON.stringify({ email, password, name, userType }), // Keep the registration payload same
       });
 
       if (response.ok) {
@@ -175,7 +173,7 @@ function SignUp() {
     }
   };
 
-  // Function to handle OTP resending
+  // Resend OTP function
   const handleResendOtp = async () => {
     setError('');
     setSuccess('');
