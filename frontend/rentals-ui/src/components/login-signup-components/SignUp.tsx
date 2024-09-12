@@ -115,7 +115,7 @@ function SignUp() {
   // Razorpay payment handler
   const handleRazorpayPayment = () => {
     const cost = getCost(); // Get the cost based on user type (paise)
-
+  
     const options = {
       key: 'rzp_test_zt5DDs1PmkkyDy', // Enter your Razorpay API Key
       amount: cost, // Amount in paise (₹100 = 10000 paise)
@@ -123,11 +123,10 @@ function SignUp() {
       name: 'Registration Fee',
       description: userType === 'BROKER' ? 'Broker Registration Fee' : 'User Registration Fee',
       handler: function (response: any) {
+        console.log('Razorpay Payment Success:', response); // Add log to check response
         setSuccess('Payment successful!');
         setPaymentSuccessful(true); // Mark payment as successful
-        // Complete registration after successful payment
-        completeRegistration();
-    
+        completeRegistration(); // Ensure registration is triggered here after payment
       },
       prefill: {
         name,
@@ -137,18 +136,21 @@ function SignUp() {
         color: '#3399cc',
       },
     };
-
+  
     const rzp1 = new (window as any).Razorpay(options);
     rzp1.on('payment.failed', function (response: any) {
+      console.error('Razorpay Payment Failed:', response); // Add log to check failure reason
       setError('Payment failed. Please try again.');
     });
-
+  
     rzp1.open(); // Open Razorpay modal
   };
+  
 
   // Complete registration only after successful payment
   const completeRegistration = async () => {
-    if (!paymentSuccessful) return; // Ensure payment is successful
+    console.log('payment status',paymentSuccessful)
+    // if (!paymentSuccessful) return; // Ensure payment is successful
 
     try {
       const response = await fetch('http://localhost:5000/api/rentals/register', {

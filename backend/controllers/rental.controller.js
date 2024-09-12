@@ -12,13 +12,16 @@ class RentalController {
       const rental = await rentalService.createRental(req.body);
       res.status(201).json(rental);
     } catch (error) {
+      console.log("error while creating rental",error)
       res.status(500).json({ error: error.message });
     }
   }
 
   async getAllRentals(req, res) {
     try {
-      const rentals = await rentalService.getAllRentals();
+   
+      const { itemType, location } = req.query;
+      const rentals = await rentalService.getAllRentals(itemType, location);
       res.status(200).json(rentals);
     } catch (error) {
       res.status(500).json({ error: error.message });

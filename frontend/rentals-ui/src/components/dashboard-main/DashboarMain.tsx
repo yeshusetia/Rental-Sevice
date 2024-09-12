@@ -3,29 +3,25 @@ import DashboardHeader from '../dashboard-header/DashboardHeader';
 import '../../styles/styles.scss';
 import Chip from './chip/chip';
 import Category from './category-card/category';
-import thumbsUp from '../../app/assets/thumbs-up.svg';
-import home from '../../app/assets/home.svg';
-import compass from '../../app/assets/compass.svg';
-import dollarSign from '../../app/assets/dollar-sign.svg';
-import moreHorizontal from '../../app/assets/more-horizontal.svg';
+
 import { click } from '@testing-library/user-event/dist/click';
 import CardComponent from '../common-components/card-components/CardComponent';
 import '../componets.styles.scss';
+import categoriesData from '../../constants/categories.json';
 import { useRentals } from '../../context/RentalContext';
 import InsightComponent from '../common-components/insight-component/InsightComponent';
 import CitiesComponent from '../common-components/cities-component/CitiesComponent';
 function DashboarMain() {
+    
     const { rentals, setRentals } = useRentals();
     console.log('rentals in main component',rentals)
-    const [activeChip, setActiveChip] = useState('Places'); // Default active chip
+    const [activeChip, setActiveChip] = useState('PROPERTY'); // Default active chip
+    const {activeCategory,setActiveCategory}=useRentals() as any;
     const [activeSpaceCategory, setActiveSpaceCategory] = useState('-1'); 
-    const chips = ['Places', 'Rides', 'Things'];
-    const categories = [
-        { iconPath: thumbsUp, name: 'Holiday Rentals', bgColor: '#FDEBEC' },
-        { iconPath: home, name: 'Residential Spaces', bgColor: '#F1F8ED' },
-        { iconPath: compass, name: 'Event Spaces', bgColor: '#F6EDF4' },
-        { iconPath: dollarSign, name: 'Commercial Properties', bgColor: '#EAF2F9' },
-        { iconPath: moreHorizontal, name: 'More', bgColor: '#FEF3EB' },
+    const chips = [
+        { label: 'Places', value: 'PROPERTY'},
+        { label: 'Rides', value: 'VEHICLE'},
+        { label: 'Things', value: 'THING'}
       ];
       const spaceCategories = [ 
         {label:'All Items',value:'-1'},
@@ -35,7 +31,6 @@ function DashboarMain() {
         {label:'Vans & Buses',value:'VANS_BUSES'},
         {label:'Cars and Suvs',value:'CARS_SUVS'} 
     ];
-    const cards=[1,2,3,4,5]
 
     const handleCategoryClick = (value: string) => {
         setActiveSpaceCategory(value);
@@ -58,12 +53,15 @@ function DashboarMain() {
 
             <div className="chips-main d-flex just-center">
             {chips.map((chip) => (
-                <Chip
-                key={chip}
-                label={chip}
-                isActive={activeChip === chip}
-                onClick={() => setActiveChip(chip)}
-                />
+            <Chip
+                key={chip.value}
+                label={chip.label}
+                isActive={activeChip === chip.value}
+                onClick={() => {
+                    setActiveChip(chip.value);   // Update the local state
+                    setActiveCategory(chip.value);  // Update the context state
+                  }}
+            />
             ))}
             </div>
 
@@ -80,7 +78,7 @@ function DashboarMain() {
             </div>
 
            <div className="categories d-flex gap-24 just-center pt-32">
-           {categories.map((category) => (
+           {categoriesData[activeCategory as keyof typeof categoriesData ].map((category:any) => (
                 <Category
                 name={category.name}
                 bgColor={category.bgColor}

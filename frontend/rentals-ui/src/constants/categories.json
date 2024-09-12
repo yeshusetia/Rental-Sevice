@@ -1,0 +1,21 @@
+{
+    "PROPERTY": [
+      { "iconPath": "../../app/assets/thumbs-up.svg", "name": "Holiday Rentals", "bgColor": "#FDEBEC" },
+      { "iconPath": "../../app/assets/home.svg", "name": "Residential Spaces", "bgColor": "#F1F8ED" },
+      { "iconPath": "../../app/assets/compass.svg", "name": "Event Spaces", "bgColor": "#F6EDF4" },
+      { "iconPath": "../../app/assets/dollar-sign.svg", "name": "Commercial Properties", "bgColor": "#EAF2F9" },
+      { "iconPath": "../../app/assets/more-horizontal.svg", "name": "More", "bgColor": "#FEF3EB" }
+    ],
+    "VEHICLE": [
+      { "iconPath": "../../app/assets/thumbs-up.svg", "name": "Suv and Cars", "bgColor": "#FDEBEC" },
+      { "iconPath": "../../app/assets/home.svg", "name": "Bikes and Scooters", "bgColor": "#F1F8ED" }
+    ],
+    "THING": [
+      { "iconPath": "../../app/assets/thumbs-up.svg", "name": "Furniture", "bgColor": "#FDEBEC" },
+      { "iconPath": "../../app/assets/home.svg", "name": "Table", "bgColor": "#F1F8ED" },
+      { "iconPath": "../../app/assets/compass.svg", "name": "Event Spaces", "bgColor": "#F6EDF4" },
+      { "iconPath": "../../app/assets/dollar-sign.svg", "name": "Commercial Properties", "bgColor": "#EAF2F9" },
+      { "iconPath": "../../app/assets/more-horizontal.svg", "name": "More", "bgColor": "#FEF3EB" }
+    ]
+  }
+  

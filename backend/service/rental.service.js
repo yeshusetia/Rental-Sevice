@@ -7,8 +7,16 @@ class RentalService {
     return await rental.save();
   }
 
-  async getAllRentals() {
-    return await Rental.find();
+  async getAllRentals(itemType, location) {
+    const query = { itemType }; // Initialize the query with the itemType
+
+    if (location !== 'ALL') {
+      query.location = location;
+    }
+
+    const rentals = await Rental.find(query); // Query the database with the constructed query
+  
+    return rentals;
   }
 
   async getRentalById(id) {

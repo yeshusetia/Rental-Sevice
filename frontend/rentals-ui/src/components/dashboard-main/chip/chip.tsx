@@ -7,15 +7,16 @@ interface ChipProps {
   onClick: () => void;
 }
 
-const chip: React.FC<ChipProps> = ({ label, isActive, onClick }) => {
+const Chip: React.FC<ChipProps> = ({ label, isActive, onClick }) => {
   return (
     <button
       className={`chip ${isActive ? 'active' : ''}`}
       onClick={onClick}
+      disabled={isActive} // Optionally disable interaction if active
     >
       {label}
     </button>
   );
 };
 
-export default chip;
+export default Chip;

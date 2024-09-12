@@ -133,11 +133,11 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
       });
 
       if (response.ok) {
-        setRentalUploadedSuccessfully(true);
+        setRentalUploadedSuccessfully(true); 
         toast.success('Rental posted successfully!');
         onClose();
       } else {
-        toast.error('Failed to post rental.');
+   
       }
     } catch (error) {
       console.error('Error posting rental:', error);

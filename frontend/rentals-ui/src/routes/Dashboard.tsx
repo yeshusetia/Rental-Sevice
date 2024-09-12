@@ -8,6 +8,8 @@ function Dashboard() {
   const {user, setUser} = useUser();
   const [error, setError] = useState('');
   const {rentalUploadedSuccessfully,setRentalUploadedSuccessfully} = useRentals();
+  const {activeCategory,setActiveCategory} = useRentals();
+  const {activeLocation,setActiveLocation} = useRentals();
   const fetchUserDetails = () =>
   {
     const userData = localStorage.getItem('user');
@@ -21,7 +23,7 @@ function Dashboard() {
 
   const fetchRentals = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/rentals');
+      const response = await fetch(`http://localhost:5000/api/rentals?itemType=${activeCategory}&location=${activeLocation}`);
       if (!response.ok) {
         throw new Error('Failed to fetch rentals');
       }
@@ -40,11 +42,15 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (rentalUploadedSuccessfully) {  // Only trigger fetch when it's true
-      fetchRentals(); // Fetch rentals when a new rental is uploaded
-      setRentalUploadedSuccessfully(false); // Reset it AFTER fetching
+
+    if (rentalUploadedSuccessfully || activeCategory || activeLocation) {
+      fetchRentals(); 
+      // Reset the rental uploaded flag after fetching, if it's true
+      if (rentalUploadedSuccessfully) {
+        setRentalUploadedSuccessfully(false);
+      }
     }
-  }, [rentalUploadedSuccessfully]);
+  }, [rentalUploadedSuccessfully, activeCategory, activeLocation]);
 
   useEffect(() => {
     if (user) {
