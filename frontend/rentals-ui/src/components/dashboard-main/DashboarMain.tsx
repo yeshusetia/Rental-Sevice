@@ -3,6 +3,7 @@ import DashboardHeader from '../dashboard-header/DashboardHeader';
 import '../../styles/styles.scss';
 import Chip from './chip/chip';
 import Category from './category-card/category';
+import { subCategoriesData,chips } from '../../constants/subCategoriesData';
 
 import { click } from '@testing-library/user-event/dist/click';
 import CardComponent from '../common-components/card-components/CardComponent';
@@ -14,29 +15,29 @@ import CitiesComponent from '../common-components/cities-component/CitiesCompone
 function DashboarMain() {
     
     const { rentals, setRentals } = useRentals();
+    const [filteredRentals, setFilteredRentals] = useState(rentals); 
     console.log('rentals in main component',rentals)
     const [activeChip, setActiveChip] = useState('PROPERTY'); // Default active chip
-    const {activeCategory,setActiveCategory}=useRentals() as any;
-    const [activeSpaceCategory, setActiveSpaceCategory] = useState('-1'); 
-    const chips = [
-        { label: 'Places', value: 'PROPERTY'},
-        { label: 'Rides', value: 'VEHICLE'},
-        { label: 'Things', value: 'THING'}
+    const {activeCategory,setActiveCategory}=useRentals();
+    const [activeSubCategory, setActiveSubCategory] = useState('-1'); 
+  
+      const subCategories = [
+        { label: 'All Items', value: '-1' },
+        ...subCategoriesData[activeCategory] 
       ];
-      const spaceCategories = [ 
-        {label:'All Items',value:'-1'},
-        {label:'Residential Spaces',value:'RESIDENTIAL'},
-        {label:'Sports Venues',value:'SPORTS_VENUE'},
-        {label:'Meeting Spaces',value:'MEETING_SPACE'},
-        {label:'Vans & Buses',value:'VANS_BUSES'},
-        {label:'Cars and Suvs',value:'CARS_SUVS'} 
-    ];
 
-    const handleCategoryClick = (value: string) => {
-        setActiveSpaceCategory(value);
+
+    const handleCategoryClick = (subCategory: string) => {
+        setActiveSubCategory(subCategory);
+
+    if (subCategory === '-1') {
+        // Show all items when 'All Items' is selected
+        setFilteredRentals(rentals);
+      } else {
+        const filtered = rentals.filter((rental:any) => rental.category === subCategory);
+        setFilteredRentals(filtered);
+      }
       };
-
-   
 
   return (
     <div>
@@ -52,7 +53,7 @@ function DashboarMain() {
             </div>
 
             <div className="chips-main d-flex just-center">
-            {chips.map((chip) => (
+            {chips.map((chip:any) => (
             <Chip
                 key={chip.value}
                 label={chip.label}
@@ -92,17 +93,16 @@ function DashboarMain() {
             </div>
 
             <div className="space-categories d-flex gap-24 just-center pt-32">
-                {spaceCategories.map((spaceCategory)=>(
-                    <div onClick={()=>handleCategoryClick(spaceCategory.value)} className={`space-category ${activeSpaceCategory == spaceCategory.value  ? 'active-space-category' : ''}`} >
+                {subCategories.map((spaceCategory)=>(
+                    <div onClick={()=>handleCategoryClick(spaceCategory.value)} className={`space-category ${activeSubCategory == spaceCategory.value  ? 'active-space-category' : ''}`} >
                         <span>{spaceCategory.label}</span>
-
                     </div>
                 ))}
 
             </div>
 
             <div className="cards-section d-flex just-center">
-                        {rentals.map((rental:any) => (
+                        {filteredRentals.map((rental:any) => (
                             <CardComponent
                                 rental={rental}  // Passing the entire rental object
                             />
