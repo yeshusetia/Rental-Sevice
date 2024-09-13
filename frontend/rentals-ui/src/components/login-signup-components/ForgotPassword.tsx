@@ -30,7 +30,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/request-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/rentals/reset-password', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

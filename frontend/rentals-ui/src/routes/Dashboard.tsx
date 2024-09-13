@@ -18,12 +18,13 @@ function Dashboard() {
 
     }
 
-
   }
 
   const fetchRentals = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/rentals?itemType=${activeCategory}&location=${activeLocation}`);
+      console.log('url',`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals?itemType=${activeCategory}&location=${activeLocation}`)
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals?itemType=${activeCategory}&location=${activeLocation}`);
+      
       if (!response.ok) {
         throw new Error('Failed to fetch rentals');
       }

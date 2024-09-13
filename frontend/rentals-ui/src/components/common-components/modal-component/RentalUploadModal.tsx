@@ -124,7 +124,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
         ...rentalData,
         editorId: user._id
       };
-      const response = await fetch('http://localhost:5000/api/rentals', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

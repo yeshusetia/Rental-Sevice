@@ -19,7 +19,7 @@ function Login() {
 
     // Call the login API
     try {
-      const response = await fetch('http://localhost:5000/api/rentals/login', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

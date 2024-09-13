@@ -58,7 +58,7 @@ function SignUp() {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/request-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ function SignUp() {
     try {
       setLoading(true);
       // Verify OTP and then open the Razorpay modal for payment
-      const response = await fetch('http://localhost:5000/api/rentals/verify-otp', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ function SignUp() {
     // if (!paymentSuccessful) return; // Ensure payment is successful
 
     try {
-      const response = await fetch('http://localhost:5000/api/rentals/register', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ function SignUp() {
 
     try {
       setResendLoading(true);
-      const response = await fetch('http://localhost:5000/api/rentals/request-otp', {
+      const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/request-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
