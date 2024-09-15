@@ -16,7 +16,6 @@ app.use(cors());
 mongoose.connect('mongodb+srv://yeshusetia:Yeshusetia123@@rental-db.o3beh.mongodb.net/?retryWrites=true&w=majority&appName=Rental-DB', { useNewUrlParser: true, useUnifiedTopology: true });
 app.use(bodyParser.json());
 app.get('/', (req, res) => {
-  res.send('Hello from the backend!');
 });
 
 // Setup Swagger

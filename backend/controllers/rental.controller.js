@@ -2,6 +2,8 @@
 const rentalService = require('../service/rental.service');
 const userService = require('../service/user.service');
 const User = require('../models/user.model'); 
+const fs = require('fs');
+const path = require('path');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator'); // Use a package to generate OTP
@@ -22,6 +24,7 @@ class RentalController {
    
       const { itemType, location } = req.query;
       const rentals = await rentalService.getAllRentals(itemType, location);
+  
       res.status(200).json(rentals);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -128,14 +131,13 @@ class RentalController {
     const { email, source } = req.body;
   
     try {
+      // Validate user based on source (NEW_USER or EXISTING_USER)
       if (source === 'NEW_USER') {
-        // For new user registration, check if the user already exists
         const existingUser = await userService.findUserByEmail(email);
         if (existingUser) {
           return res.status(400).json({ error: 'User already exists' });
         }
       } else if (source === 'EXISTING_USER') {
-        // For password reset, check if the user exists
         const user = await userService.findUserByEmail(email);
         if (!user) {
           return res.status(404).json({ error: 'User not found' });
@@ -146,34 +148,42 @@ class RentalController {
   
       // Generate OTP
       const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
-      otpStore[email] = otp; // Store OTP in memory (consider using Redis for production)
+      otpStore[email] = otp; // Store OTP in memory or database
   
-      // Send OTP via email
+      // Read the HTML template
+      const templatePath = path.join(__dirname, '../templates/otpTemplate.html');
+      let htmlTemplate = fs.readFileSync(templatePath, 'utf8');
+  
+      // Replace placeholders with actual values
+      htmlTemplate = htmlTemplate.replace('{{otp}}', otp);
+      htmlTemplate = htmlTemplate.replace('{{action}}', source === 'NEW_USER' ? 'Registration' : 'Password Reset');
+      htmlTemplate = htmlTemplate.replace('{{description}}', source === 'NEW_USER' ? 'complete your registration' : 'reset your password');
+  
+      // Create a transporter for sending email
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: 'yeshusetia10@gmail.com', // Your email
-          pass: 'slqo mijx hmjq nqzq', // Your email password
+          user: 'yeshusetia10@gmail.com',
+          pass: 'slqo mijx hmjq nqzq',
         },
       });
   
+      // Mail options with HTML template
       const mailOptions = {
         from: 'yeshusetia10@gmail.com',
         to: email,
-        subject: 'Your OTP for ' + (source === 'NEW_USER' ? 'Registration' : 'Password Reset'),
-        text: `Your OTP for ${source === 'NEW_USER' ? 'registration' : 'password reset'} is: ${otp}`,
+        subject: `Your OTP for ${source === 'NEW_USER' ? 'Registration' : 'Password Reset'}`,
+        html: htmlTemplate, // Use the HTML template
       };
   
-      // Send the email
+      // Send email
       const info = await transporter.sendMail(mailOptions);
       console.log('Email sent: ' + info.response);
   
-      // Send a response back to the client after success
-      res.status(200).json({ message: 'OTP sent successfully', otp }); // You can remove the `otp` in production
+      // Send success response back to the client
+      res.status(200).json({ message: 'OTP sent successfully', otp });
     } catch (error) {
       console.error('Error sending OTP: ', error);
-  
-      // Send an error response back to the client
       res.status(500).json({ error: 'Error sending OTP' });
     }
   }

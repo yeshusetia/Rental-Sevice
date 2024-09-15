@@ -8,6 +8,7 @@ import { useRentals } from '../../../context/RentalContext';
 interface RentalUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  rental?: any;  // Optional rental prop for editing
 }
 
 const locations = [
@@ -20,7 +21,7 @@ const locations = [
 ];
 
 // Define categories for each item type
-const categories:any = {
+const categories: any = {
   PROPERTY: [
     { label: 'Residential', value: 'RESIDENTIAL' },
     { label: 'Sport Venue', value: 'SPORT_VENUE' },
@@ -39,43 +40,59 @@ const categories:any = {
   ]
 };
 
-function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
+function RentalUploadModal({ isOpen, onClose, rental }: RentalUploadModalProps) {
   const { user } = useUser();
   const { setRentalUploadedSuccessfully } = useRentals();
 
-  const [title, setTitle] = useState('');
-  const [location, setLocation] = useState('');
-  const [price, setPrice] = useState('');
-  const [itemStatus, setItemStatus] = useState('RENT');
-  const [itemType, setItemType] = useState('PROPERTY');
-  const [category, setCategory] = useState(''); // New state for category
-  const [ownerName, setOwnerName] = useState('');
-  const [ownerMobileNumber, setOwnerMobileNumber] = useState('');
-  const [rentDuration, setRentDuration] = useState('MONTH');
-  const [sellingPrice, setSellingPrice] = useState('');
-  const [image, setImage] = useState<string | null>(null);
+  // Prefill form values if rental exists, else default values
+  const [title, setTitle] = useState(rental ? rental.title : '');
+  const [location, setLocation] = useState(rental ? rental.location : '');
+  const [price, setPrice] = useState(rental ? rental.price : '');
+  const [itemStatus, setItemStatus] = useState(rental ? rental.itemStatus : 'RENT');
+  const [itemType, setItemType] = useState(rental ? rental.itemType : 'PROPERTY');
+  const [category, setCategory] = useState(rental ? rental.category : '');
+  const [ownerName, setOwnerName] = useState(rental ? rental.ownerName : '');
   const [error, setError] = useState<string | null>(null);
+  const [ownerMobileNumber, setOwnerMobileNumber] = useState(rental ? rental.ownerMobileNumber : '');
+  const [rentDuration, setRentDuration] = useState(rental ? rental.rentDuration : 'MONTH');
+  const [sellingPrice, setSellingPrice] = useState(rental ? rental.sellingPrice : '');
+  const [image, setImage] = useState<string | null>(rental ? rental.image : null);
   const [fileName, setFileName] = useState('');
 
   // Reset the form when the modal opens or closes
   useEffect(() => {
     if (isOpen) {
-      // Reset all form values
-      setTitle('');
-      setLocation('');
-      setPrice('');
-      setItemStatus('RENT');
-      setItemType('PROPERTY');
-      setCategory(''); // Reset category
-      setOwnerName('');
-      setOwnerMobileNumber('');
-      setRentDuration('MONTH');
-      setSellingPrice('');
-      setImage(null);
-      setFileName('');
-      setError(null);
+      // If editing, prefill the form fields
+      if (rental) {
+        setTitle(rental.title);
+        setLocation(rental.location);
+        setPrice(rental.price);
+        setItemStatus(rental.itemStatus);
+        setItemType(rental.itemType);
+        setCategory(rental.category);
+        setOwnerName(rental.ownerName);
+        setOwnerMobileNumber(rental.ownerMobileNumber);
+        setRentDuration(rental.rentDuration);
+        setSellingPrice(rental.sellingPrice);
+        setImage(rental.image);
+        setFileName(''); // Reset file name since it's already prefilled
+      } else {
+        // Reset all form values for new rental
+        setTitle('');
+        setLocation('');
+        setPrice('');
+        setItemStatus('RENT');
+        setItemType('PROPERTY');
+        setCategory('');
+        setOwnerName('');
+        setOwnerMobileNumber('');
+        setRentDuration('MONTH');
+        setSellingPrice('');
+        setImage(null);
+        setFileName('');
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, rental]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -104,7 +121,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
       location,
       itemStatus,
       itemType,
-      category, // Include category in data
+      category,
       ownerName,
       ownerMobileNumber,
       image
@@ -125,7 +142,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
         editorId: user._id
       };
       const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals`, {
-        method: 'POST',
+        method: rental ? 'PUT' : 'POST', // PUT for editing, POST for new rental
         headers: {
           'Content-Type': 'application/json'
         },
@@ -134,18 +151,17 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
 
       if (response.ok) {
         setRentalUploadedSuccessfully(true); 
-        toast.success('Rental posted successfully!');
+        toast.success(`Rental ${rental ? 'updated' : 'posted'} successfully!`);
         onClose();
       } else {
-   
+        toast.error(`Error ${rental ? 'updating' : 'posting'} rental.`);
       }
     } catch (error) {
-      console.error('Error posting rental:', error);
-      toast.error('Error posting rental.');
+      console.error(`Error ${rental ? 'updating' : 'posting'} rental:`, error);
+      toast.error(`Error ${rental ? 'updating' : 'posting'} rental.`);
     }
   };
 
-  // Get category options based on itemType
   const categoryOptions = categories[itemType] || [];
 
   if (!isOpen) return null;
@@ -181,6 +197,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
                 className="inputs"
                 placeholder="Enter Title"
                 value={title}
+                maxLength={30} 
                 onChange={(e) => setTitle(e.target.value)}
                 required
               />
@@ -299,6 +316,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
                 className="inputs"
                 placeholder="Enter owner's name"
                 value={ownerName}
+                maxLength={50} 
                 onChange={(e) => setOwnerName(e.target.value)}
                 required
               />
@@ -311,6 +329,7 @@ function RentalUploadModal({ isOpen, onClose }: RentalUploadModalProps) {
                 className="inputs"
                 placeholder="Enter owner's mobile number"
                 value={ownerMobileNumber}
+                maxLength={15} 
                 onChange={(e) => setOwnerMobileNumber(e.target.value)}
                 required
               />
