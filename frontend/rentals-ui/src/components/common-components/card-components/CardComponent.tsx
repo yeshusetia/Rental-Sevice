@@ -10,7 +10,7 @@ import { useRentals } from '../../../context/RentalContext';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import the CSS for the confirm alert
 
-function CardComponent({ rental }:{rental:any}) {
+function CardComponent({ rental,style }:{rental:any,style:any}) {
   const { user } = useUser();  
   const { setRentalUploadedSuccessfully } = useRentals();
   

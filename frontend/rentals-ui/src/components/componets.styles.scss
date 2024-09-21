@@ -1,15 +1,42 @@
-.cards-section
-{
-padding-top: 56px;
-flex-wrap: wrap;
-gap: 50px;
+.cards-section {
+  display: flex;
+  flex-wrap: wrap; /* Allows the cards to wrap when necessary */
+  justify-content: flex-start;
+  gap: 20px;
 }
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-100%); /* Starts off-screen to the left */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0); /* Ends at the original position */
+  }
+}
+
+.cards-section .main-card {
+  flex-basis: calc(33.33% - 20px); /* Adjust to fit 3 cards per row, accounting for margin */
+  box-sizing: border-box;
+  margin-bottom: 30px; /* Add some bottom margin for vertical spacing */
+  animation: slide-in 0.5s ease forwards;
+  opacity: 0;
+}
+.cards-section .main-card:nth-child(1) {
+  animation-delay: 0.1s; /* Slight delay for first card */
+}
+
+.cards-section .main-card:nth-child(2) {
+  animation-delay: 0.3s; /* Slightly more delay for second card */
+}
+
+.cards-section .main-card:nth-child(3) {
+  animation-delay: 0.5s; /* Even more delay for third card */
+}
+
 .page-two
 {
   padding: 70px 150px;
 }
 
-.main-card
-{
-
-}

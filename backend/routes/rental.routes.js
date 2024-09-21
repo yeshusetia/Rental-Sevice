@@ -4,6 +4,8 @@ const rentalController = require('../controllers/rental.controller');
 
 const router = express.Router();
 
+
+router.get('/health', rentalController.healthCheck); 
 router.post('/', rentalController.createRental);
 router.get('/', rentalController.getAllRentals);
 router.get('/:id', rentalController.getRentalById);

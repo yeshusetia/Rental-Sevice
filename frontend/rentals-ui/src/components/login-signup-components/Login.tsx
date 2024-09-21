@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthLayout from './AuthLayout';
 import './login-sign-up.scss';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,23 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_RENTAL_SERVICE_URL}api/rentals/health`);
+        if (response.ok) {
+          const data = await response.text();
+          console.log('service is running',data)
+        }
+      } catch (err) {
+       console.log('service is not running',err)
+      }
+    };
+
+    checkHealth(); // Call the health check function
+  }, []); // Empty dependency array to run on mount only
+  
   const handleLogin = async (e: any) => {
     e.preventDefault();
 

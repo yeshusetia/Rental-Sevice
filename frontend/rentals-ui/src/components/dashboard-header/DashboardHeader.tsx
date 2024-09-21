@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/styles.scss';
 import add from '../../app/assets/plus.svg';
-import logo from '../../app/assets/logo.jpg'; // Assuming you have a logo.svg file
+import logo from '../../app/assets/logo.svg'; // Assuming you have a logo.svg file
 import userIcon from '../../app/assets/user-icon.svg'; // Assuming you have a user icon
 import RentalUploadModal from '../common-components/modal-component/RentalUploadModal';
 import './DashboardHeader.scss';
@@ -41,8 +41,9 @@ function DashboardHeader() {
   return (
     <div className="top-header d-flex just-space align-items-center">
       {/* Logo on the left */}
-      <div className="logo-container d-flex just-center center-align">
+      <div className="logo-container d-flex center-align gap-12">
         <img src={logo} alt="QuickList Logo" className="logo" />
+        <span className='h5 logo-text'>Quick List</span>
       </div>
 
       {/* Post Listing button on the right */}

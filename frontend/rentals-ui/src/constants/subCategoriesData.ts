@@ -2,7 +2,7 @@
 export const subCategoriesData:any = {
     PROPERTY: [
       { label: 'Residential Spaces', value: 'RESIDENTIAL' },
-      { label: 'Sports Venues', value: 'SPORTS_VENUE' },
+      { label: 'Sports Venues', value: 'SPORT_VENUE' },
       { label: 'Commercial Spaces', value: 'COMMERCIAL_SPACES' }
     ],
     VEHICLE: [
@@ -20,7 +20,7 @@ export const subCategoriesData:any = {
 
   export const chips :any =
   [
-    { label: 'Places', value: 'PROPERTY'},
+    { label: 'Properties', value: 'PROPERTY'},
     { label: 'Rides', value: 'VEHICLE'},
     { label: 'Things', value: 'THING'}
   ];

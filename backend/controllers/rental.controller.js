@@ -66,7 +66,14 @@ class RentalController {
       res.status(500).json({ error: error.message });
     }
   }
-
+  async healthCheck(req, res) {
+    try {
+      res.status(200).send('Service is up and running!');
+    } catch (error) {
+      console.error('Error in health check: ', error);
+      res.status(500).json({ error: 'Health check failed' });
+    }
+  }
 
   async register(req, res) {
     try {
