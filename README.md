@@ -3,3 +3,6 @@ Description: A MEAN stack project setup with Angular for frontend and Express, M
 
 Swagger doc
 http://localhost:5000/api-docs/
+
+Hosted Link
+https://merry-yeot-d6124d.netlify.app/dashboard
